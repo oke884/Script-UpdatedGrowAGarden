@@ -1,99 +1,53 @@
-local player = game.Players.LocalPlayer
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- GUI Setup
-local loadingGui = Instance.new("ScreenGui")
-loadingGui.Name = "FakeLoadingGUI"
-loadingGui.IgnoreGuiInset = true
-loadingGui.ResetOnSpawn = false
-loadingGui.DisplayOrder = 999999
-loadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-loadingGui.Parent = playerGui
+-- Create screen GUI
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "FakeLoadingScreen"
 
--- Background
-local background = Instance.new("Frame")
-background.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+-- Create background frame
+local background = Instance.new("Frame", screenGui)
 background.Size = UDim2.new(1, 0, 1, 0)
-background.Position = UDim2.new(0, 0, 0, 0)
-background.Parent = loadingGui
+background.BackgroundColor3 = Color3.fromRGB(34, 139, 34) -- Garden green
 
 -- Title
-local title = Instance.new("TextLabel")
-title.Text = "Initializing System..."
-title.Font = Enum.Font.GothamBold
-title.TextSize = 40
-title.TextColor3 = Color3.fromRGB(0, 170, 255)
+local title = Instance.new("TextLabel", background)
+title.Size = UDim2.new(1, 0, 0.2, 0)
+title.Position = UDim2.new(0, 0, 0.1, 0)
 title.BackgroundTransparency = 1
-title.Size = UDim2.new(1, 0, 0, 60)
-title.Position = UDim2.new(0, 0, 0.35, -100)
-title.Parent = background
+title.Text = "🌱 Grow a Garden"
+title.Font = Enum.Font.FredokaOne
+title.TextSize = 48
+title.TextColor3 = Color3.new(1, 1, 1)
 
--- Loading Percent Text
-local loadingText = Instance.new("TextLabel")
-loadingText.Size = UDim2.new(0, 300, 0, 50)
-loadingText.Position = UDim2.new(0.5, -150, 0.5, -25)
-loadingText.BackgroundTransparency = 1
-loadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
-loadingText.TextScaled = true
-loadingText.Font = Enum.Font.GothamBlack
-loadingText.Text = "Loading... 0%"
-loadingText.Parent = background
+-- Loading bar frame
+local loadingBarBack = Instance.new("Frame", background)
+loadingBarBack.Position = UDim2.new(0.25, 0, 0.7, 0)
+loadingBarBack.Size = UDim2.new(0.5, 0, 0.05, 0)
+loadingBarBack.BackgroundColor3 = Color3.fromRGB(200, 255, 200)
 
--- Progress bar frame
-local progressBarBackground = Instance.new("Frame")
-progressBarBackground.Size = UDim2.new(0, 400, 0, 20)
-progressBarBackground.Position = UDim2.new(0.5, -200, 0.5, 40)
-progressBarBackground.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-progressBarBackground.BorderSizePixel = 0
-progressBarBackground.Parent = background
+local loadingBarFill = Instance.new("Frame", loadingBarBack)
+loadingBarFill.Size = UDim2.new(0, 0, 1, 0)
+loadingBarFill.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
 
--- Actual progress bar
-local progressBar = Instance.new("Frame")
-progressBar.Size = UDim2.new(0, 0, 1, 0)
-progressBar.Position = UDim2.new(0, 0, 0, 0)
-progressBar.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-progressBar.BorderSizePixel = 0
-progressBar.Parent = progressBarBackground
+-- Loading percentage
+local percentLabel = Instance.new("TextLabel", background)
+percentLabel.Size = UDim2.new(1, 0, 0.1, 0)
+percentLabel.Position = UDim2.new(0, 0, 0.8, 0)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Text = "Loading... 0%"
+percentLabel.Font = Enum.Font.Gotham
+percentLabel.TextSize = 24
+percentLabel.TextColor3 = Color3.new(1, 1, 1)
 
--- Warning Message (initially invisible)
-local warningLabel = Instance.new("TextLabel")
-warningLabel.Size = UDim2.new(1, 0, 0, 60)
-warningLabel.Position = UDim2.new(0, 0, 0.65, 50)
-warningLabel.BackgroundTransparency = 1
-warningLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-warningLabel.TextScaled = true
-warningLabel.Font = Enum.Font.GothamBold
-warningLabel.Text = ""
-warningLabel.Parent = background
-
--- TweenService for smooth bar
-local TweenService = game:GetService("TweenService")
-
--- Fake loading logic (10 minutes)
-local totalTime = 600
-local steps = 100
-local timePerStep = totalTime / steps
-
-for i = 0, steps do
-	loadingText.Text = "Loading... " .. i .. "%"
-	
-	local progress = i / 100
-	local tween = TweenService:Create(progressBar, TweenInfo.new(timePerStep, Enum.EasingStyle.Linear), {
-		Size = UDim2.new(progress, 0, 1, 0)
-	})
-	tween:Play()
-	
-	task.wait(timePerStep)
+-- Simulate loading
+for i = 1, 100 do
+	task.wait(0.05)
+	loadingBarFill.Size = UDim2.new(i/100, 0, 1, 0)
+	percentLabel.Text = "Loading... " .. i .. "%"
 end
 
--- Once stuck at 100%
-loadingText.Text = "Loading... 100%"
-title.Text = "Finalizing Memory Sectors..."
-
--- Add dramatic scary message
-warningLabel.Text = "âš ï¸ DO NOT LEAVE THE GAME OR ELSE.\nIF YOU EXECUTE AGAIN IT WILL NOT LOAD BACK."
-
--- Stay stuck forever
-while true do
-	task.wait()
-end
+-- Remove screen after load
+task.wait(0.5)
+screenGui:Destroy()
